@@ -1,0 +1,843 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Panel - LAST HUNT</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container" id="loginContainer">
+        <div class="login-container">
+            <div class="login-form">
+                <div class="login-logo">
+                    <h2>LAST HUNT</h2>
+                    <p>Admin Panel</p>
+                </div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="submit" class="login-btn">Login</button>
+                    <div id="loginError" class="login-error"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="adminPanel" style="display:none">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h1>LAST HUNT - Admin Dashboard</h1>
+            <button class="btn btn-danger" id="logoutBtn">Logout</button>
+        </div>
+        
+        <div class="admin-section">
+            <h2>Catalog Settings</h2>
+            <form id="catalogForm">
+                <div class="form-group">
+                    <label>Catalog Name</label>
+                    <input type="text" id="catalogNameInput" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Catalog Name</button>
+            </form>
+            
+            <div class="category-management">
+                <div style="flex: 1;">
+                    <h3>Categories</h3>
+                    <div class="category-list" id="categoryList">
+                        <!-- Categories will be loaded here -->
+                    </div>
+                </div>
+                <div style="flex: 1;">
+                    <h3>Add New Category</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="text" id="newCategoryName" placeholder="Enter category name">
+                        </div>
+                        <button class="btn btn-primary" id="addCategoryBtn">Add Category</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="admin-section">
+            <h2>Discount Management</h2>
+            <form id="discountForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Discount Percentage</label>
+                        <input type="number" id="discountPercentage" min="0" max="100" step="1" required>
+                    </div>
+                    <div class="form-group" style="align-self: flex-end;">
+                        <button type="submit" class="btn btn-primary">Update Discount</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="admin-section">
+            <h2>Shipping Settings</h2>
+            <form id="shippingForm">
+                <div class="shipping-settings">
+                    <div class="shipping-setting">
+                        <div class="form-group">
+                            <label>Free Shipping Threshold (MVR)</label>
+                            <input type="number" id="freeShippingThreshold" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="shipping-setting">
+                        <div class="form-group">
+                            <label>Standard Shipping Cost (MVR)</label>
+                            <input type="number" id="shippingCost" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Shipping Settings</button>
+            </form>
+        </div>
+        
+        <div class="admin-section">
+            <h2>Product Management</h2>
+            <button class="btn btn-primary" id="addProductBtn">Add New Product</button>
+            
+            <div id="productForm" style="display:none; margin-top:15px">
+                <form id="editProductForm">
+                    <input type="hidden" id="productId">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Product Name</label>
+                            <input type="text" id="productName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="productCategory" required>
+                                <!-- Categories will be loaded dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Price (MVR)</label>
+                            <input type="number" id="productPrice" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Original Price (MVR)</label>
+                            <input type="number" id="productOriginalPrice" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Image URL</label>
+                        <input type="text" id="productImage" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="productDescription" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="productFeatured"> Featured Product
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Product</button>
+                    <button type="button" class="btn btn-danger" id="cancelEdit">Cancel</button>
+                </form>
+            </div>
+            
+            <table id="productsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Featured</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productsList">
+                    <!-- Products will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="admin-section">
+            <h2>Order Management</h2>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+                <div style="display: flex; gap: 10px;">
+                    <select id="orderStatusFilter" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                    <button class="btn btn-primary" id="refreshOrdersBtn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+            
+            <table id="ordersTable">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersList">
+                    <!-- Orders will be loaded here -->
+                </tbody>
+            </table>
+            
+            <div id="orderDetailsPanel" class="order-details-panel" style="display: none;">
+                <h3>Order Details</h3>
+                <div id="orderDetailsContent">
+                    <!-- Order details will be loaded here -->
+                </div>
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="closeOrderDetails">Close Details</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image preview modal -->
+    <div id="imageModal" class="modal">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAfMqjSUlD9dLHvuDSRlJCaODNK5eAHrIk",
+            authDomain: "lasthunt2014.firebaseapp.com",
+            databaseURL: "https://lasthunt2014-default-rtdb.firebaseio.com",
+            projectId: "lasthunt2014",
+            storageBucket: "lasthunt2014.firebasestorage.app",
+            messagingSenderId: "842831759002",
+            appId: "1:842831759002:web:c3f46e87dc52b2845a8123",
+            measurementId: "G-7NV8G8PSDR"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        // DOM elements
+        const loginContainer = document.getElementById('loginContainer');
+        const adminPanel = document.getElementById('adminPanel');
+        const loginForm = document.getElementById('loginForm');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginError = document.getElementById('loginError');
+        const productsList = document.getElementById('productsList');
+        const ordersList = document.getElementById('ordersList');
+        const productForm = document.getElementById('productForm');
+        const editProductForm = document.getElementById('editProductForm');
+        const addProductBtn = document.getElementById('addProductBtn');
+        const cancelEdit = document.getElementById('cancelEdit');
+        const refreshOrdersBtn = document.getElementById('refreshOrdersBtn');
+        const orderStatusFilter = document.getElementById('orderStatusFilter');
+        const orderDetailsPanel = document.getElementById('orderDetailsPanel');
+        const orderDetailsContent = document.getElementById('orderDetailsContent');
+        const closeOrderDetails = document.getElementById('closeOrderDetails');
+        const imageModal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const closeModal = document.querySelector('.close-modal');
+        const discountForm = document.getElementById('discountForm');
+        const discountPercentageInput = document.getElementById('discountPercentage');
+        const catalogForm = document.getElementById('catalogForm');
+        const catalogNameInput = document.getElementById('catalogNameInput');
+        const productCategorySelect = document.getElementById('productCategory');
+        const categoryList = document.getElementById('categoryList');
+        const newCategoryName = document.getElementById('newCategoryName');
+        const addCategoryBtn = document.getElementById('addCategoryBtn');
+        const shippingForm = document.getElementById('shippingForm');
+        const freeShippingThresholdInput = document.getElementById('freeShippingThreshold');
+        const shippingCostInput = document.getElementById('shippingCost');
+
+        // App state
+        let state = {
+            products: [],
+            orders: [],
+            selectedOrder: null,
+            catalogName: "LAST HUNT",
+            categories: []
+        };
+
+        // Initialize
+        function init() {
+            // Check if already logged in
+            if (localStorage.getItem('adminLoggedIn') === 'true') {
+                showAdminPanel();
+                loadCatalogName();
+                loadCategories();
+                loadProducts();
+                loadOrders();
+                loadDiscount();
+                loadShippingSettings();
+            } else {
+                showLoginPanel();
+            }
+
+            // Event listeners
+            loginForm.addEventListener('submit', handleLogin);
+            logoutBtn.addEventListener('click', handleLogout);
+            addProductBtn.addEventListener('click', showAddProductForm);
+            cancelEdit.addEventListener('click', hideProductForm);
+            editProductForm.addEventListener('submit', saveProduct);
+            refreshOrdersBtn.addEventListener('click', loadOrders);
+            orderStatusFilter.addEventListener('change', renderOrders);
+            closeOrderDetails.addEventListener('click', () => {
+                orderDetailsPanel.style.display = 'none';
+            });
+            closeModal.addEventListener('click', () => {
+                imageModal.style.display = 'none';
+            });
+            window.addEventListener('click', (event) => {
+                if (event.target === imageModal) {
+                    imageModal.style.display = 'none';
+                }
+            });
+            discountForm.addEventListener('submit', updateDiscount);
+            catalogForm.addEventListener('submit', updateCatalogName);
+            addCategoryBtn.addEventListener('click', addNewCategory);
+            shippingForm.addEventListener('submit', updateShippingSettings);
+        }
+
+        // Handle login
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple admin login (in production, use proper authentication)
+            if (username === "admin" && password === "admin123") {
+                localStorage.setItem('adminLoggedIn', 'true');
+                showAdminPanel();
+                loadCatalogName();
+                loadCategories();
+                loadProducts();
+                loadOrders();
+                loadDiscount();
+                loadShippingSettings();
+                loginError.textContent = '';
+            } else {
+                loginError.textContent = 'Invalid username or password';
+            }
+        }
+
+        // Handle logout
+        function handleLogout() {
+            localStorage.removeItem('adminLoggedIn');
+            showLoginPanel();
+        }
+
+        // Show admin panel
+        function showAdminPanel() {
+            loginContainer.style.display = 'none';
+            adminPanel.style.display = 'block';
+        }
+
+        // Show login panel
+        function showLoginPanel() {
+            loginContainer.style.display = 'block';
+            adminPanel.style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Load catalog name from Firebase
+        function loadCatalogName() {
+            database.ref('catalogName').on('value', (snapshot) => {
+                const name = snapshot.val();
+                if (name) {
+                    state.catalogName = name;
+                    catalogNameInput.value = name;
+                } else {
+                    state.catalogName = "LAST HUNT";
+                    catalogNameInput.value = "LAST HUNT";
+                }
+                updateCategoriesDropdown();
+            });
+        }
+
+        // Load shipping settings from Firebase
+        function loadShippingSettings() {
+            database.ref('shippingSettings').on('value', (snapshot) => {
+                const settings = snapshot.val();
+                if (settings) {
+                    freeShippingThresholdInput.value = settings.freeShippingThreshold || 100;
+                    shippingCostInput.value = settings.shippingCost || 5.99;
+                } else {
+                    freeShippingThresholdInput.value = 100;
+                    shippingCostInput.value = 5.99;
+                }
+            });
+        }
+
+        // Update shipping settings
+        function updateShippingSettings(e) {
+            e.preventDefault();
+            const freeShippingThreshold = parseFloat(freeShippingThresholdInput.value) || 0;
+            const shippingCost = parseFloat(shippingCostInput.value) || 0;
+            
+            database.ref('shippingSettings').set({
+                freeShippingThreshold,
+                shippingCost
+            })
+            .then(() => {
+                alert('Shipping settings updated successfully!');
+            })
+            .catch(error => {
+                alert('Error updating shipping settings: ' + error.message);
+            });
+        }
+
+        // Load categories from Firebase
+        function loadCategories() {
+            database.ref('categories').on('value', (snapshot) => {
+                const categoriesData = snapshot.val();
+                if (categoriesData) {
+                    state.categories = Object.values(categoriesData);
+                    renderCategories();
+                    updateCategoriesDropdown();
+                } else {
+                    state.categories = [];
+                    renderCategories();
+                    updateCategoriesDropdown();
+                }
+            });
+        }
+
+        // Render categories list
+        function renderCategories() {
+            categoryList.innerHTML = state.categories.map(category => `
+                <div class="category-badge">
+                    ${category}
+                    <span class="delete-category" onclick="deleteCategory('${category}')">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // Update categories dropdown in product form
+        function updateCategoriesDropdown() {
+            // Clear existing options
+            productCategorySelect.innerHTML = '';
+            
+            // Add all categories
+            state.categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                productCategorySelect.appendChild(option);
+            });
+        }
+
+        // Add new category
+        function addNewCategory() {
+            const categoryName = newCategoryName.value.trim();
+            
+            if (!categoryName) {
+                alert('Please enter a category name');
+                return;
+            }
+            
+            if (state.categories.includes(categoryName)) {
+                alert('This category already exists');
+                return;
+            }
+            
+            // Add to Firebase
+            database.ref('categories').push(categoryName)
+                .then(() => {
+                    newCategoryName.value = '';
+                })
+                .catch(error => {
+                    alert('Error adding category: ' + error.message);
+                });
+        }
+
+        // Delete category
+        function deleteCategory(categoryName) {
+            if (confirm(`Are you sure you want to delete the category "${categoryName}"? This will not affect existing products.`)) {
+                // Find the category in Firebase and remove it
+                database.ref('categories').orderByValue().equalTo(categoryName).once('value')
+                    .then(snapshot => {
+                        snapshot.forEach(child => {
+                            database.ref('categories/' + child.key).remove()
+                                .catch(error => {
+                                    alert('Error deleting category: ' + error.message);
+                                });
+                        });
+                    });
+            }
+        }
+
+        // Update catalog name
+        function updateCatalogName(e) {
+            e.preventDefault();
+            const name = catalogNameInput.value.trim();
+            
+            if (!name) {
+                alert('Please enter a catalog name');
+                return;
+            }
+            
+            database.ref('catalogName').set(name)
+                .then(() => {
+                    state.catalogName = name;
+                    updateCategoriesDropdown();
+                    alert('Catalog name updated successfully!');
+                })
+                .catch(error => {
+                    alert('Error updating catalog name: ' + error.message);
+                });
+        }
+
+        // Load discount from Firebase
+        function loadDiscount() {
+            database.ref('discount').on('value', (snapshot) => {
+                const discountData = snapshot.val();
+                if (discountData) {
+                    discountPercentageInput.value = discountData.percentage || 0;
+                } else {
+                    discountPercentageInput.value = 0;
+                }
+            });
+        }
+
+        // Update discount
+        function updateDiscount(e) {
+            e.preventDefault();
+            const percentage = parseInt(discountPercentageInput.value) || 0;
+            
+            database.ref('discount').set({ percentage })
+                .then(() => {
+                    alert('Discount updated successfully!');
+                })
+                .catch(error => {
+                    alert('Error updating discount: ' + error.message);
+                });
+        }
+
+        // Load products from Firebase
+        function loadProducts() {
+            database.ref('products').on('value', (snapshot) => {
+                const productsData = snapshot.val();
+                if (productsData) {
+                    state.products = Object.entries(productsData).map(([id, product]) => ({
+                        id,
+                        ...product
+                    }));
+                    renderProducts();
+                } else {
+                    state.products = [];
+                    renderProducts();
+                }
+            });
+        }
+
+        // Load orders from Firebase
+        function loadOrders() {
+            database.ref('orders').on('value', (snapshot) => {
+                const ordersData = snapshot.val();
+                if (ordersData) {
+                    state.orders = Object.entries(ordersData).map(([id, order]) => ({
+                        id,
+                        ...order
+                    }));
+                    renderOrders();
+                } else {
+                    state.orders = [];
+                    renderOrders();
+                }
+            });
+        }
+
+        // Product management
+        function showAddProductForm() {
+            editProductForm.reset();
+            document.getElementById('productId').value = '';
+            productForm.style.display = 'block';
+        }
+        
+        function hideProductForm() {
+            productForm.style.display = 'none';
+        }
+        
+        function editProduct(productId) {
+            const product = state.products.find(p => p.id === productId);
+            if (!product) return;
+            
+            document.getElementById('productId').value = product.id;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productOriginalPrice').value = product.original_price || '';
+            document.getElementById('productImage').value = product.image;
+            document.getElementById('productDescription').value = product.description;
+            document.getElementById('productFeatured').checked = product.featured || false;
+            
+            productForm.style.display = 'block';
+        }
+        
+        function saveProduct(e) {
+            e.preventDefault();
+            
+            const product = {
+                name: document.getElementById('productName').value,
+                category: document.getElementById('productCategory').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                original_price: parseFloat(document.getElementById('productOriginalPrice').value) || null,
+                image: document.getElementById('productImage').value,
+                description: document.getElementById('productDescription').value,
+                featured: document.getElementById('productFeatured').checked
+            };
+            
+            const productId = document.getElementById('productId').value;
+            
+            if (productId) {
+                // Update existing product
+                database.ref(`products/${productId}`).update(product)
+                    .then(() => {
+                        hideProductForm();
+                    })
+                    .catch(error => {
+                        alert('Error updating product: ' + error.message);
+                    });
+            } else {
+                // Add new product
+                database.ref('products').push(product)
+                    .then(() => {
+                        hideProductForm();
+                    })
+                    .catch(error => {
+                        alert('Error adding product: ' + error.message);
+                    });
+            }
+        }
+        
+        function deleteProduct(productId) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                database.ref(`products/${productId}`).remove()
+                    .catch(error => {
+                        alert('Error deleting product: ' + error.message);
+                    });
+            }
+        }
+        
+        function renderProducts() {
+            productsList.innerHTML = state.products.map(product => {
+                return `
+                <tr>
+                    <td>${product.id.substring(0, 8)}</td>
+                    <td>${product.name}</td>
+                    <td>${product.category}</td>
+                    <td>MVR${product.price.toFixed(2)}</td>
+                    <td>${product.featured ? 'Yes' : 'No'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary btn-sm" onclick="editProduct('${product.id}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+        
+        // Order management
+        function viewOrderDetails(orderId) {
+            const order = state.orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            state.selectedOrder = order;
+            
+            orderDetailsContent.innerHTML = `
+                <div class="order-details-row">
+                    <div class="order-details-label">Order Number:</div>
+                    <div>${order.orderNumber || order.id.substring(0, 8)}</div>
+                </div>
+                <div class="order-details-row">
+                    <div class="order-details-label">Date:</div>
+                    <div>${order.date || 'N/A'}</div>
+                </div>
+                <div class="order-details-row">
+                    <div class="order-details-label">Status:</div>
+                    <div>
+                        <span class="status-badge status-${order.status}">
+                            ${order.status}
+                        </span>
+                    </div>
+                </div>
+                <div class="order-details-row">
+                    <div class="order-details-label">Payment Method:</div>
+                    <div>${order.paymentMethod === 'bank_transfer' ? 'Bank Transfer' : 'Credit Card'}</div>
+                </div>
+                <div class="order-details-row">
+                    <div class="order-details-label">Total Amount:</div>
+                    <div>MVR${order.total.toFixed(2)}</div>
+                </div>
+                
+                <h4 style="margin-top: 15px;">Customer Information</h4>
+                <div class="order-details-row">
+                    <div class="order-details-label">Name:</div>
+                    <div>${order.shippingInfo?.name || 'N/A'}</div>
+                </div>
+                <div class="order-details-row">
+                    <div class="order-details-label">Email:</div>
+                    <div>${order.shippingInfo?.email || 'N/A'}</div>
+                </div>
+                <div class="order-details-row">
+                    <div class="order-details-label">Phone:</div>
+                    <div>${order.shippingInfo?.phone || 'N/A'}</div>
+                </div>
+                <div class="order-details-row">
+                    <div class="order-details-label">Address:</div>
+                    <div>
+                        ${order.shippingInfo?.address || ''}<br>
+                        ${order.shippingInfo?.city || ''}, ${order.shippingInfo?.state || ''} ${order.shippingInfo?.postalCode || ''}<br>
+                        ${order.shippingInfo?.country || ''}
+                    </div>
+                </div>
+                
+                <div class="order-items">
+                    <h4>Order Items</h4>
+                    ${order.items.map(item => `
+                        <div class="order-item">
+                            <span>${item.product.name} x ${item.quantity}</span>
+                            <span>MVR${(item.product.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                    `).join('')}
+                    <div class="order-item" style="font-weight: bold; border-top: 1px solid #ddd; margin-top: 5px;">
+                        <span>Total:</span>
+                        <span>MVR${order.total.toFixed(2)}</span>
+                    </div>
+                </div>
+                
+                ${order.paymentMethod === 'bank_transfer' ? `
+                <div class="payment-slip">
+                    <h4>Bank Transfer Details</h4>
+                    <p>Payment slip: ${order.paymentSlip ? 'Uploaded' : 'Not uploaded'}</p>
+                    ${order.paymentSlip ? `
+                        <p>Click to view payment slip:</p>
+                        <img src="${order.paymentSlip}" alt="Payment Slip" 
+                             onclick="openImageModal('${order.paymentSlip}')"
+                             style="cursor: pointer; max-width: 200px;">
+                    ` : ''}
+                </div>
+                ` : ''}
+            `;
+            
+            orderDetailsPanel.style.display = 'block';
+        }
+        
+        // Open image in modal
+        function openImageModal(imageUrl) {
+            modalImage.src = imageUrl;
+            imageModal.style.display = 'block';
+        }
+        
+        // Update order status
+        function updateOrderStatus(orderId, status) {
+            database.ref(`orders/${orderId}/status`).set(status)
+                .then(() => {
+                    alert('Order status updated successfully!');
+                })
+                .catch(error => {
+                    alert('Error updating order status: ' + error.message);
+                });
+        }
+        
+        // Delete order
+        function deleteOrder(orderId) {
+            if (confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+                database.ref(`orders/${orderId}`).remove()
+                    .then(() => {
+                        orderDetailsPanel.style.display = 'none';
+                    })
+                    .catch(error => {
+                        alert('Error deleting order: ' + error.message);
+                    });
+            }
+        }
+        
+        // Render orders table
+        function renderOrders() {
+            const statusFilter = orderStatusFilter.value;
+            let filteredOrders = state.orders;
+            
+            if (statusFilter !== 'all') {
+                filteredOrders = state.orders.filter(order => order.status === statusFilter);
+            }
+            
+            // Sort by date (newest first)
+            filteredOrders.sort((a, b) => {
+                const dateA = a.date ? new Date(a.date) : new Date(0);
+                const dateB = b.date ? new Date(b.date) : new Date(0);
+                return dateB - dateA;
+            });
+            
+            ordersList.innerHTML = filteredOrders.map(order => `
+                <tr>
+                    <td>${order.orderNumber || order.id.substring(0, 8)}</td>
+                    <td>${order.shippingInfo?.name || 'N/A'}</td>
+                    <td>MVR${order.total.toFixed(2)}</td>
+                    <td>
+                        <span class="status-badge status-${order.status}">
+                            ${order.status}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary btn-sm" onclick="viewOrderDetails('${order.id}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            ${order.status === 'pending' ? `
+                                <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'approved')">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${order.id}', 'rejected')">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            ` : ''}
+                            ${order.status === 'approved' ? `
+                                <button class="btn btn-primary btn-sm" onclick="updateOrderStatus('${order.id}', 'completed')">
+                                    <i class="fas fa-check-circle"></i> Complete
+                                </button>
+                            ` : ''}
+                            <button class="btn btn-warning btn-sm" onclick="deleteOrder('${order.id}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

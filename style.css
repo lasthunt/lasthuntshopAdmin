@@ -1,0 +1,422 @@
+
+* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding: 10px;
+            font-size: 14px;
+        }
+        
+        .container {
+            width: 100%;
+            margin: 0 auto;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1, h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        h3 {
+            font-size: 1.2rem;
+        }
+        
+        h4 {
+            font-size: 1rem;
+        }
+        
+        .admin-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        
+        th, td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            white-space: nowrap;
+        }
+        
+        th {
+            background-color: #f8f8f8;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 2px;
+        }
+        
+        .btn-primary {
+            background-color: #8B0000;
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: #FFC107;
+            color: black;
+        }
+        
+        .btn-info {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 4px 6px;
+            font-size: 11px;
+        }
+        
+        .form-group {
+            margin-bottom: 12px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 13px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        textarea {
+            min-height: 80px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background-color: #FFC107;
+            color: black;
+        }
+        
+        .status-approved {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .status-rejected {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .status-completed {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+        }
+        
+        .order-details-panel {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+        
+        .order-details-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 8px;
+        }
+        
+        .order-details-label {
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 3px;
+        }
+        
+        .order-items {
+            margin-top: 15px;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .payment-slip {
+            margin-top: 12px;
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px;
+        }
+        
+        .payment-slip img {
+            max-width: 100%;
+            max-height: 200px;
+            display: block;
+            margin-top: 8px;
+        }
+        
+        /* Modal for image preview */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            display: block;
+            margin: 10% auto;
+            max-width: 95%;
+            max-height: 80%;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: #f1f1f1;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid #3498db;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 15px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Category badges */
+        .category-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: #e0e0e0;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .category-badge .delete-category {
+            margin-left: 5px;
+            cursor: pointer;
+            color: #f44336;
+        }
+        
+        /* Category management */
+        .category-management {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        /* Shipping settings */
+        .shipping-settings {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .shipping-setting {
+            flex: 1;
+        }
+        
+        /* Mobile responsiveness */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1200px;
+                padding: 20px;
+            }
+            
+            h1, h2 {
+                font-size: 1.8rem;
+            }
+            
+            h3 {
+                font-size: 1.4rem;
+            }
+            
+            h4 {
+                font-size: 1.2rem;
+            }
+            
+            .admin-section {
+                padding: 20px;
+            }
+            
+            th, td {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+            
+            .btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+            
+            .btn-sm {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+            
+            .form-row {
+                flex-direction: row;
+                gap: 15px;
+            }
+            
+            .order-details-row {
+                flex-direction: row;
+            }
+            
+            .order-details-label {
+                width: 150px;
+                margin-bottom: 0;
+            }
+            
+            .modal-content {
+                margin: 5% auto;
+                max-width: 90%;
+                max-height: 90%;
+            }
+            
+            .close-modal {
+                top: 15px;
+                right: 35px;
+                font-size: 40px;
+            }
+        }
+        
+        /* Login form styles */
+        .login-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .login-logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .login-logo h2 {
+            color: #8B0000;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #8B0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            background-color: #6B0000;
+        }
+        
+        .login-error {
+            color: #f44336;
+            margin-top: 10px;
+            font-size: 13px;
+            text-align: center;
+        }
